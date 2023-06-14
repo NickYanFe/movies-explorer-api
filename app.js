@@ -24,13 +24,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 app.use(express.json());
 app.use(helmet());
 
-app.use(requestLogger); // подключаем логгер запросов
-
-// app.get('/crash-test', () => {
-//   setTimeout(() => {
-//     throw new Error('Сервер сейчас упадёт');
-//   }, 0);
-// });
+app.use(requestLogger);
 
 app.post('/signup', validationCreateUser, createUser);
 app.post('/signin', validationLogin, login);
@@ -39,7 +33,7 @@ app.use(auth);
 
 app.use(router);
 
-app.use(errorLogger); // подключаем логгер ошибок
+app.use(errorLogger);
 
 app.use(errors());
 app.use(handleErrors);

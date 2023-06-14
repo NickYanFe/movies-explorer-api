@@ -10,7 +10,4 @@ router.use('/*', (req, res, next) => {
   next(new NOT_FOUND('Ошибка! Данные не найдены!'));
 });
 
-// router.use('/signin', login);
-// router.use('/signup', createUser);
-
 module.exports = router;

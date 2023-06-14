@@ -44,7 +44,7 @@ userSchema.statics.findUserByCredentials = function (email, password) {
           return Promise.reject(new NOT_AUTH('Неправильные почта или пароль'));
         }
 
-        return user; // теперь user доступен
+        return user;
       });
     });
 };

@@ -1,6 +1,6 @@
 const { NODE_ENV, JWT_SECRET } = process.env;
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken
+const jwt = require('jsonwebtoken');
 const userSchema = require('../models/user');
 const BAD_REQUEST = require('../errors/BAD_REQUEST');
 const NOT_FOUND = require('../errors/NOT_FOUND');
@@ -56,11 +56,7 @@ module.exports.getUser = (req, res, next) => {
     });
 };
 module.exports.createUser = (req, res, next) => {
-  const {
-    name,
-    // about, avatar,
-    email, password,
-  } = req.body;
+  const { name, email, password } = req.body;
 
   bcrypt
     .hash(password, 10)
@@ -68,16 +64,12 @@ module.exports.createUser = (req, res, next) => {
       userSchema
         .create({
           name,
-          // about,
-          // avatar,
           email,
           password: hash,
         })
         .then(() => res.status(201).send({
           data: {
             name,
-            // about,
-            // avatar,
             email,
           },
         }))
@@ -101,17 +93,13 @@ module.exports.createUser = (req, res, next) => {
 };
 
 module.exports.updateUser = (req, res, next) => {
-  const {
-    name,
-    // about
-  } = req.body;
+  const { name } = req.body;
 
   userSchema
     .findByIdAndUpdate(
       req.user._id,
       {
         name,
-        // about,
       },
       {
         new: true,
@@ -133,34 +121,6 @@ module.exports.updateUser = (req, res, next) => {
       return next(err);
     });
 };
-
-// module.exports.updateAvatar = (req, res, next) => {
-//   const { avatar } = req.body;
-
-//   userSchema
-//     .findByIdAndUpdate(
-//       req.user._id,
-//       { avatar },
-//       {
-//         new: true,
-//         runValidators: true,
-//       },
-//     )
-//     .orFail(() => {
-//       throw new NOT_FOUND('Аватар пользователя с указанным _id не найден');
-//     })
-//     .then((user) => res.status(200).send(user))
-//     .catch((err) => {
-//       if (err.name === 'CastError' || err.name === 'ValidationError') {
-//         return next(
-//           new BAD_REQUEST(
-//             'При обновлении аватара пользователя переданы некорректные данные',
-//           ),
-//         );
-//       }
-//       return next(err);
-//     });
-// };
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
