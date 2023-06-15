@@ -1,9 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+
 const helmet = require('helmet');
 const { errors } = require('celebrate');
 const cors = require('cors');
+const limiter = require('./middlewares/rateLimiter');
 
 const router = require('./routes/router');
 const { createUser, login } = require('./controllers/users');
@@ -13,18 +15,20 @@ const {
 } = require('./middlewares/validations');
 const handleErrors = require('./middlewares/handleErrors');
 
-const { baseMongoUrl = 'mongodb://127.0.0.1:27017/bitfilmsdb', PORT = 3000 } = process.env;
+const { baseMongoUrl } = require('./utils/config');
 const auth = require('./middlewares/auth');
 
+const { PORT = 3000 } = process.env;
 const app = express();
-app.use(cors());
 
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
+app.use(cors());
 app.use(express.json());
 app.use(helmet());
 
 app.use(requestLogger);
+app.use(limiter);
 
 app.post('/signup', validationCreateUser, createUser);
 app.post('/signin', validationLogin, login);

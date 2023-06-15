@@ -29,9 +29,7 @@ const validationId = (id) => {
 module.exports.validationCreateUser = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
-    // about: Joi.string().min(2).max(30),
     email: Joi.string().required().custom(validationEmail),
-    // avatar: Joi.string().custom(validationUrl),
     password: Joi.string().required(),
   }),
 });
@@ -52,22 +50,9 @@ module.exports.validationUserId = celebrate({
 module.exports.validationUpdateUser = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
-    // about: Joi.string().min(2).max(30).required(),
+    email: Joi.string().required().custom(validationEmail),
   }),
 });
-
-// module.exports.validationUpdateAvatar = celebrate({
-//   body: Joi.object().keys({
-//     avatar: Joi.string().required().custom(validationUrl),
-//   }),
-// });
-
-// module.exports.validationCreateCard = celebrate({
-//   body: Joi.object().keys({
-//     name: Joi.string().min(2).max(30).required(),
-//     link: Joi.string().required().custom(validationUrl),
-//   }),
-// });
 
 module.exports.validationCreateMovie = celebrate({
   body: Joi.object().keys({
@@ -87,6 +72,6 @@ module.exports.validationCreateMovie = celebrate({
 
 module.exports.validationMovieById = celebrate({
   params: Joi.object().keys({
-    movieId: Joi.number().required().custom(validationId),
+    movieId: Joi.string().required().custom(validationId),
   }),
 });

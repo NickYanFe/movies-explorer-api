@@ -4,10 +4,17 @@ const NOT_FOUND = require('../errors/NOT_FOUND');
 const FORBIDDEN_ERROR = require('../errors/FORBIDDEN_ERROR');
 
 module.exports.getMovies = (req, res, next) => {
+  const { _id } = req.user;
   movieSchema
-    .find({})
-    .then((movies) => res.status(200).send(movies))
-    .catch(next);
+    .find({ owner: _id })
+    .populate('owner', '_id')
+    .then((movies) => {
+      if (movies) return res.status(200).send(movies);
+      throw new NOT_FOUND('Не найдено');
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') { next(new BAD_REQUEST('Передан некорректный id пользователя')); } else next(err);
+    });
 };
 
 module.exports.createMovie = (req, res, next) => {

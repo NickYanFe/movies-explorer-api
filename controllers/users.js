@@ -1,6 +1,6 @@
-const { NODE_ENV, JWT_SECRET } = process.env;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { NODE_ENV, JWT_SECRET } = require('../utils/config');
 const userSchema = require('../models/user');
 const BAD_REQUEST = require('../errors/BAD_REQUEST');
 const NOT_FOUND = require('../errors/NOT_FOUND');
@@ -93,12 +93,13 @@ module.exports.createUser = (req, res, next) => {
 };
 
 module.exports.updateUser = (req, res, next) => {
-  const { name } = req.body;
+  const { email, name } = req.body;
 
   userSchema
     .findByIdAndUpdate(
       req.user._id,
       {
+        email,
         name,
       },
       {
@@ -111,7 +112,12 @@ module.exports.updateUser = (req, res, next) => {
     })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
+      if (err.code === 11000) {
+        return next(
+          new CONFLICT_ERROR('Пользователь c таким email уже существует'),
+        );
+      }
+      if (err.name === 'ValidationError') {
         return next(
           new BAD_REQUEST(
             'При обновлении профиля пользователя переданы некорректные данные',
