@@ -9,6 +9,9 @@ const limiter = require('./middlewares/rateLimiter');
 
 const router = require('./routes/router');
 const { createUser, login } = require('./controllers/users');
+
+const { corsOptions } = require('./utils/constants');
+
 const {
   validationCreateUser,
   validationLogin,
@@ -18,12 +21,12 @@ const handleErrors = require('./middlewares/handleErrors');
 const { baseMongoUrl } = require('./utils/config');
 const auth = require('./middlewares/auth');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3001 } = process.env;
 const app = express();
 
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(helmet());
 

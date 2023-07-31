@@ -6,18 +6,18 @@ const BAD_REQUEST = require('../errors/BAD_REQUEST');
 const NOT_FOUND = require('../errors/NOT_FOUND');
 const CONFLICT_ERROR = require('../errors/CONFLICT_ERROR');
 
-module.exports.getUsers = (req, res, next) => {
-  userSchema
-    .find({})
-    .then((users) => res.status(200).send(users))
-    .catch(next);
-};
+// module.exports.getUsers = (req, res, next) => {
+//   userSchema
+//     .find({})
+//     .then((users) => res.status(200).send(users))
+//     .catch(next);
+// };
 
-module.exports.getUserById = (req, res, next) => {
-  const { userId } = req.params;
+module.exports.getUser = (req, res, next) => {
+  // const { userId } = req.params;
 
   userSchema
-    .findById(userId)
+    .findById(req.user._id)
     .then((user) => {
       if (!user) {
         throw new NOT_FOUND('Пользователь c данным _id не найден.');
@@ -38,23 +38,45 @@ module.exports.getUserById = (req, res, next) => {
     });
 };
 
-module.exports.getUser = (req, res, next) => {
-  userSchema
-    .findById(req.user._id)
-    .then((user) => {
-      if (!user) {
-        throw new NOT_FOUND('Пользователь не найден');
-      }
-      res.send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(BAD_REQUEST('Переданы некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
-};
+// module.exports.getUser = (id, res, next) => {
+//   userSchema
+//     .findById({ id })
+//     .orFail()
+//     .then((user) => {
+//       if (!user) {
+//         return next(new NOT_FOUND('Пользователь не найден'));
+//       }
+//       res.send({ data: user });
+//     })
+//     .catch((err) => {
+//       if (err.name === 'CastError') {
+//         return next(new BAD_REQUEST('Переданы некорректные данные'));
+//       }
+//       return next(err);
+//     });
+// };
+
+// module.exports.getCurrentUser = (req, res, next) => this.getUser(req.user._id, res, next);
+
+// module.exports.getUser = (req, res, next) => {
+//   // userSchema
+//   //   .findById(req.user._id)
+//   userSchema.findOne({ _id: req.user._id })
+//     .then((user) => {
+//       if (!user) {
+//         throw new NOT_FOUND('Пользователь не найден');
+//       }
+//       // res.send(user);
+//       res.send({data: user});
+//     })
+//     .catch((err) => {
+//       if (err.name === 'CastError') {
+//         next(BAD_REQUEST('Переданы некорректные данные'));
+//       } else {
+//         next(err);
+//       }
+//     });
+// };
 module.exports.createUser = (req, res, next) => {
   const { name, email, password } = req.body;
 
@@ -67,10 +89,10 @@ module.exports.createUser = (req, res, next) => {
           email,
           password: hash,
         })
-        .then(() => res.status(201).send({
+        .then((user) => res.status(201).send({
           data: {
-            name,
-            email,
+            name: user.name,
+            email: user.email,
           },
         }))
         .catch((err) => {
@@ -93,14 +115,14 @@ module.exports.createUser = (req, res, next) => {
 };
 
 module.exports.updateUser = (req, res, next) => {
-  const { email, name } = req.body;
+  const { name, email } = req.body;
 
   userSchema
     .findByIdAndUpdate(
       req.user._id,
       {
-        email,
         name,
+        email,
       },
       {
         new: true,
@@ -110,7 +132,8 @@ module.exports.updateUser = (req, res, next) => {
     .orFail(() => {
       throw new NOT_FOUND('Пользователь с данным _id не найден');
     })
-    .then((user) => res.status(200).send(user))
+    // .then((user) => res.status(200).send(user))
+    .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
       if (err.code === 11000) {
         return next(
@@ -145,3 +168,8 @@ module.exports.login = (req, res, next) => {
     })
     .catch(next);
 };
+
+// module.exports.logout = (req, res, next) => {
+//   localStorage.removeItem('token'); // Удаление ключа из localStorage
+//   res.status(200).send({ message: 'Вы успешно вышли' });
+// };
